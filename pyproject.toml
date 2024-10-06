@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "course-work-1"
+version = "0.1.0"
+description = ""
+authors = ["Luka Buyanov <luka.buanov@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+black = "^24.8.0"
+isort = "^5.13.2"
+flake8 = "^7.1.1"
+mypy = "^1.11.2"
+pytest = "^8.3.3"
+requests = "^2.32.3"
+pandas = "^2.2.3"
+openpyxl = "^3.1.5"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
