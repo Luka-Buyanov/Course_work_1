@@ -194,7 +194,6 @@ def main_views(date_time: str) -> str:
     date = date_time[3:9]
     start_date = f"01.{date}"
     operations = get_operations(start_date, date_time)
-    print(hello_message())
     answer = {
         "greeting": hello_message(),
         "cards": card_information(operations),
