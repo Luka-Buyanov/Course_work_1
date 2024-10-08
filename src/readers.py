@@ -12,7 +12,7 @@ def excel_reader() -> list[dict]:
         error_result = [{"error": "Ошибка, файл не найден"}]
     else:
         result = excel_data.to_dict(orient="records")
-    if not result:
+    if result:
         return result
     else:
         return error_result

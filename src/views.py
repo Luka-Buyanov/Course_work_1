@@ -1,6 +1,7 @@
 import json
 import os
 from datetime import datetime
+from typing import Any
 
 import requests
 from dotenv import load_dotenv
@@ -8,7 +9,7 @@ from dotenv import load_dotenv
 from src.readers import excel_reader
 
 
-def main_views(date_time: str) -> None:
+def main_views(date_time: str) -> str:
     """Функция объединяющая весь функционал модуля views"""
 
     def hello_message() -> str:
@@ -25,9 +26,6 @@ def main_views(date_time: str) -> None:
         elif "00:00:00" > time > "18:00:00":
             result = "Добрый вечер!"
         return result
-
-    date = date_time[3:9]
-    start_date = f"01.{date}"
 
     def get_operations(start: str, end: str) -> list[dict]:
         """Функция выводящий список операций входящих в диапазон данных"""
@@ -68,12 +66,12 @@ def main_views(date_time: str) -> None:
                         summ += int(operation["Сумма операции"])
                 one_card["Номер карты"] = number
                 one_card["Сумма трат"] = str(summ)
-                one_card["Кешбэк"] = str(summ // 100)
+                one_card["Кешбэк"] = str(-summ // 100)
                 result.append(one_card)
             return result
 
-        card_numbers = get_card_numbers(operations)
-        output = get_result(card_numbers, operations)
+        card_numbers = get_card_numbers(main_operations)
+        output = get_result(card_numbers, main_operations)
         return output
 
     def top_five(main_operations: list[dict]) -> list[dict]:
@@ -133,33 +131,81 @@ def main_views(date_time: str) -> None:
             output_list.append(one_operation)
         return output_list
 
+    def user_options(path: str) -> dict:
+        """Функция выводящая список настроек из файла формата JSON"""
+
+        with open(path, encoding="utf8") as file:
+            data = json.load(file)
+        return data
+
     def value_course() -> list[dict]:
         """Функция выводящая курс валют"""
 
-        def user_options(path: str) -> list[dict]:
-            """Подфункция выводящая список настроек из файла формата JSON"""
+        def user_value(options: dict) -> dict:
+            """Подфункция выводящая курсы валют по настройкам пользователя"""
 
-            with open(path, encoding="utf8") as file:
-                data = json.load(file)
-                options = data
-            return options
+            load_dotenv()
+            symbols = options["user_currencies"]
+            symbol = ""
+            for currency in symbols:
+                symbol = symbol + f"{currency},"
+            api_key = os.getenv("API_KEY")
+            course = requests.get(
+                f"https://api.apilayer.com/exchangerates_data/latest?symbols={symbol}&base=RUB",
+                headers={"apikey": api_key},
+                data={},
+            )
+            output = course.json()
+            all_rates = output["rates"]
+            return all_rates
 
         user_option = user_options("../user_settings.json")
-        load_dotenv()
-        symbols = []
-        for dictionary in user_option:
-            for option in dictionary:
-                symbols = option["user_currencies"]
-        api_key = os.getenv("API_KEY")
-        course = requests.get(
-            f"https://api.apilayer.com/exchangerates_data/latest?symbols={symbols}&base=RUB",
-            headers={"apikey": api_key},
-        )
-        output = course.json()
-        rates = output["rates"]
+        rates = user_value(user_option)
         result = []
-        for rate in rates:
-            result.append(rate)
+        for rate, price in rates.items():
+            one_value = {"currency": rate, "rate": price}
+            result.append(one_value)
         return result
 
+    def action_value() -> Any:
+        """Функция выводящая стоимость акций по опциям пользователя"""
+
+        option = user_options("../user_settings.json")
+        symbols = option["user_stocks"]
+        load_dotenv()
+        api_key = os.getenv("FINANCE_KEY")
+        url = f"https://api.marketstack.com/v1/eod?access_key={api_key}"
+        querystring = {
+            "symbols": symbols,
+            "exchange": "S&P500",
+            "date_from": "2024-10-07",
+        }
+        responses = requests.get(url, params=querystring)
+        response = responses.json()
+        data = response.get("data")
+        result = []
+        for symbol in data:
+            stock = symbol["symbol"]
+            price = symbol["adj_close"]
+            one_symbol = {"symbol": stock, "price": price}
+            result.append(one_symbol)
+        return result
+
+    date = date_time[3:9]
+    start_date = f"01.{date}"
     operations = get_operations(start_date, date_time)
+    print(hello_message())
+    answer = {
+        "greeting": hello_message(),
+        "cards": card_information(operations),
+        "top transactions": top_transactions(operations),
+        "top categories": top_five(operations),
+        # "currency rates" : value_course(),
+        # "stock prices" : action_value(),
+    }
+    json_data = json.dumps(answer, ensure_ascii=False)
+    return json_data
+
+
+a = main_views("2019:05:30 15:15:15")
+print(a)
