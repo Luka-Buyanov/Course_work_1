@@ -12,7 +12,9 @@ from src.readers import excel_reader
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 file_handler = logging.FileHandler("../logs/utils.log", "w")
-file_formatter = logging.Formatter("%(asctime)s - %(filename)s - %(levelname)s: %(message)s")
+file_formatter = logging.Formatter(
+    "%(asctime)s - %(filename)s - %(levelname)s: %(message)s"
+)
 file_handler.setFormatter(file_formatter)
 logger.addHandler(file_handler)
 
@@ -58,15 +60,21 @@ def card_information(main_operations: list[dict]) -> list[dict]:
     def get_card_numbers(list_operations: list[dict]) -> list[str]:
         """Подфункция выводящая список номеров карт из списка операций"""
 
-        logger.info("Запущена подфункция выводящая список номеров карт из общего списка")
+        logger.info(
+            "Запущена подфункция выводящая список номеров карт из общего списка"
+        )
         numbers = []
         for operation in list_operations:
             if operation["Номер карты"] not in numbers:
                 numbers.append(operation["Номер карты"])
-        logger.info("Завершена подфункция выводящая список номеров карт из общего списка")
+        logger.info(
+            "Завершена подфункция выводящая список номеров карт из общего списка"
+        )
         return numbers
 
-    def get_result(input_numbers: list[str], input_operations: list[dict]) -> list[dict]:
+    def get_result(
+        input_numbers: list[str], input_operations: list[dict]
+    ) -> list[dict]:
         """Подфункция выводящая конечный результат - список словарей с данными по каждой карте"""
 
         logger.info("Запущена подфункция выводящая список словарей с данными по карте")
@@ -105,7 +113,9 @@ def top_five(main_operations: list[dict]) -> list[dict]:
         logger.info("Завершена подфункция выводящая список категорий из общего списка")
         return result
 
-    def get_value(list_operations: list[dict], list_categories: list[str]) -> list[dict]:
+    def get_value(
+        list_operations: list[dict], list_categories: list[str]
+    ) -> list[dict]:
         """Подфункция выводящая суммы трат к списку категорий"""
 
         logger.info("Запущена подфункция выводящая сумму трат к каждой категории")
@@ -114,7 +124,10 @@ def top_five(main_operations: list[dict]) -> list[dict]:
             one_card = {}
             summ = 0
             for operation in list_operations:
-                if operation["Категория"] == category and operation["Статус"] != "FAILED":
+                if (
+                    operation["Категория"] == category
+                    and operation["Статус"] != "FAILED"
+                ):
                     summ += int(operation["Сумма операции"])
             one_card["Категория"] = category
             one_card["Сумма"] = str(summ)
@@ -214,7 +227,9 @@ def action_value() -> Any:
             symbols = symbols + f",{symbol}"
     load_dotenv()
     api_key = os.getenv("FINANCE_KEY")
-    responses = requests.get(f"https://api.marketstack.com/v1/eod/latest?access_key={api_key}&symbols={symbols}")
+    responses = requests.get(
+        f"https://api.marketstack.com/v1/eod/latest?access_key={api_key}&symbols={symbols}"
+    )
     logger.info("Получен ответ от сайта")
     response = responses.json()
     data = response.get("data")

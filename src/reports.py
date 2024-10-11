@@ -6,7 +6,9 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 file_handler = logging.FileHandler("../logs/reports.log", "w")
-file_formatter = logging.Formatter("%(asctime)s - %(filename)s - %(levelname)s: %(message)s")
+file_formatter = logging.Formatter(
+    "%(asctime)s - %(filename)s - %(levelname)s: %(message)s"
+)
 file_handler.setFormatter(file_formatter)
 logger.addHandler(file_handler)
 
@@ -32,7 +34,9 @@ def log(filename: Any = "result.log") -> Any:
 
 
 @log()
-def spending_by_category(main_transactions: pd.DataFrame, category: str, date: Optional[str] = None) -> list[dict]:
+def spending_by_category(
+    main_transactions: pd.DataFrame, category: str, date: Optional[str] = None
+) -> list[dict]:
     """Функция выводящая траты по категориям, принимает на вход DataFrame с транзакциями, категорию,
     и опциональную дату для сортировки. Принимает дату в формате 'DD.MM.YYYY'."""
 

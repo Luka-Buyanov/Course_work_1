@@ -1,13 +1,15 @@
 import json
 import logging
 
-from src.utils import (action_value, card_information, get_operations, hello_message, top_five, top_transactions,
-                       value_course)
+from src.utils import (action_value, card_information, get_operations,
+                       hello_message, top_five, top_transactions, value_course)
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 file_handler = logging.FileHandler("../logs/views.log", "w")
-file_formatter = logging.Formatter("%(asctime)s - %(filename)s - %(levelname)s: %(message)s")
+file_formatter = logging.Formatter(
+    "%(asctime)s - %(filename)s - %(levelname)s: %(message)s"
+)
 file_handler.setFormatter(file_formatter)
 logger.addHandler(file_handler)
 
