@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from typing import Any, Optional
 
 import pandas as pd
@@ -6,9 +7,7 @@ import pandas as pd
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 file_handler = logging.FileHandler("../logs/reports.log", "w")
-file_formatter = logging.Formatter(
-    "%(asctime)s - %(filename)s - %(levelname)s: %(message)s"
-)
+file_formatter = logging.Formatter("%(asctime)s - %(filename)s - %(levelname)s: %(message)s")
 file_handler.setFormatter(file_formatter)
 logger.addHandler(file_handler)
 
@@ -34,9 +33,7 @@ def log(filename: Any = "result.log") -> Any:
 
 
 @log()
-def spending_by_category(
-    main_transactions: pd.DataFrame, category: str, date: Optional[str] = None
-) -> list[dict]:
+def spending_by_category(main_transactions: pd.DataFrame, category: str, date: Optional[str] = None) -> list[dict]:
     """Функция выводящая траты по категориям, принимает на вход DataFrame с транзакциями, категорию,
     и опциональную дату для сортировки. Принимает дату в формате 'DD.MM.YYYY'."""
 
@@ -46,7 +43,7 @@ def spending_by_category(
     transactions = main_transactions.to_dict(orient="records")
     if date is not None:
         logger.info("Дата введена")
-        day = int(date[:2])
+        day = date[:2]
         month = int(date[3:5])
         if month <= 3:
             logger.info("Введён месяц раньше Марта")
@@ -56,15 +53,21 @@ def spending_by_category(
             logger.info("Введён месяц после Марта")
             year = int(date[6:10])
             month = month - 3
-        start_date = f"{day}.0{month}.{year}"
+        if month < 10:
+            start_date = f"{day}.0{month}.{year}"
+        else:
+            start_date = f"{day}.{month}.{year}"
+        start_dates = datetime.strptime(start_date, "%d.%m.%Y")
+        dates = datetime.strptime(date, "%d.%m.%Y")
         for transaction in transactions:
-            if start_date < transaction["Дата операции"] < date:
+            transaction_date = datetime.strptime(transaction["Дата операции"], "%d.%m.%Y %H:%M:%S")
+            if start_dates < transaction_date < dates:
                 result.append(transaction)
     else:
         logger.info("Дата не введена")
         result = transactions
     for transaction in result:
-        if category == transaction["Категория"]:
+        if category.upper() == transaction["Категория"].upper():
             output.append(transaction)
     logger.info("Завершена функция выводящая данные из Exel")
     return output
